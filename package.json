@@ -1,0 +1,30 @@
+{
+  "name": "evbus",
+  "version": "0.1.0",
+  "description": "Event library written in javascript, no dependencies",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "assert": "^1.4.1",
+    "eslint": "^5.16.0",
+    "should": "^13.2.3"
+  },
+  "scripts": {
+    "eslint": "eslint index.js",
+    "test": "node test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flfwzgl/evbus.git"
+  },
+  "keywords": [
+    "Event library",
+    "Hierarchical event"
+  ],
+  "author": "flfwzgl",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/flfwzgl/evbus/issues"
+  },
+  "homepage": "https://github.com/flfwzgl/evbus#readme"
+}
