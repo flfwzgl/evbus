@@ -1,6 +1,3 @@
-/.editorconfig
-/test
-/.nojekyll
-/src
-/build
-/dist
+.editorconfig
+.nojekyll
+.vscode

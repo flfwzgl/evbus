@@ -82,7 +82,7 @@ assert.equal(res.join('|'), '1');
 bus.on('steve', d => res.push(d + '-steve'));
 bus.trigger('steve.and.tony', 2);
 assert.equal(res.join('|'), '1|2|2-steve');
-console.log('hierachical event test passed!');
+console.log('hierachical events test passed!');
 
 
 
@@ -109,7 +109,7 @@ assert.equal(res.join('|'), '4-');
 res = [];
 bus.trigger('a.b', 5);
 assert.equal(res.join('|'), '5+');
-console.log('space delimiter test passed!');
+console.log('whitespace delimiter test passed!');
 
 
 

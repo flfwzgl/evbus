@@ -6,7 +6,7 @@ module.exports = {
         "node": true
     },
     "parserOptions": {
-        "ecmaVersion": 5
+        "ecmaVersion": 3
     },
     "rules": {
         "indent": [2, 2, {"SwitchCase": 1}],
