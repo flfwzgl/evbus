@@ -65,6 +65,35 @@ function trigger (e, types, args) {
   }
 }
 
+function bind (e, type, fn) {
+  e = add(e, type);
+  var list = e.$list;
+
+  list
+    ? list.push(fn)
+    : e.$list = [fn];
+}
+
+function unbind (e, type, fn) {
+  var arr = type.split('.')
+    , k = arr.pop()
+    , pk = arr.join('.')
+
+  e = get(e, pk);
+  if (!e) return;
+
+  if (fn === undefined) {
+    delete e[k];
+  } else if (typeof fn === 'function') {
+    rmfn(e[k], fn);
+  }
+}
+
+var char = '[\\w\\-]'
+  , typeStr = '^\\s*' + char + '+(\\.' + char + '+)*(\\s+' + char + '+(\\.' + char + '+)*)*\\s*$'
+
+var rtype = new RegExp(typeStr);
+var TYPE_ERR_MSG = 'The type should be such as "world", "world.asia", "world.asia.china africa", "." stands for hierarchy, and whitespaces stand for event delimiter';
 
 function Event () {
   if (!(this instanceof Event)) return new Event();
@@ -73,54 +102,48 @@ function Event () {
 
 Event.prototype.on = function (type, fn) {
   if (typeof type !== 'string') throw new TypeError('The type must be a string!');
-  if (!/^[\w+.]+$/i.test(type)) throw new Error('The event type must only contain characters such as "a-z, 0-9, _, ."');
+  if (!rtype.test(type)) throw new Error(TYPE_ERR_MSG);
   if (typeof fn !== 'function') throw new TypeError('The second argument of Event.on must be a function!');
 
-  var e = add(this._evbus, type);
-  var list = e.$list;
-
-  list
-    ? list.push(fn)
-    : e.$list = [fn];
-
+  var types = type.trim().split(/\s+/);
+  var bus = this._evbus;
+  types.forEach(function (type) {
+    bind(bus, type, fn);
+  });
   return this;
 }
 
 Event.prototype.off = function (type, fn) {
   if (typeof type !== 'string') throw new TypeError('The type must be a string!');
-  if (!/^[\w+.]+$/i.test(type)) throw new Error('The event type must only contain characters such as "a-z, 0-9, _, ."');
+  if (!rtype.test(type)) throw new Error(TYPE_ERR_MSG);
 
-  var arr = type.split('.')
-    , k = arr.pop()
-    , pk = arr.join('.')
+  var types = type.trim().split(/\s+/);
+  var bus = this._evbus;
 
-  var e = get(this._evbus, pk);
-  if (!e) return;
-
-  if (fn == null) {
-    delete e[k];
-  } else if (typeof fn === 'function') {
-    rmfn(e[k], fn);
-  } else {
-    return;
-  }
-
+  types.forEach(function (type) {
+    unbind(bus, type, fn);
+  });
   return this;
 }
 
 Event.prototype.trigger = Event.prototype.emit = function (type) {
   if (typeof type !== 'string') throw new TypeError('The type must be a string!');
-  if (!/^[\w+.]+$/i.test(type)) throw new Error('The event type must only contain characters such as "a-z, 0-9, _, ."');
+  if (!rtype.test(type)) throw new Error(TYPE_ERR_MSG);
 
   var args = slice.call(arguments, 1);
-  trigger(this._evbus, type.split('.'), args);
+  var types = type.trim().split(/\s+/);
+  var bus = this._evbus;
+
+  types.forEach(function (type) {
+    trigger(bus, type.split('.'), args);
+  });
+
   return this;
 }
 
 Event.prototype.clear = function () {
   this._evbus = {};
 }
-
 
 module.exports = Event;
 

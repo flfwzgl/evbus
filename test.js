@@ -1,58 +1,127 @@
 
 
-const should = require('should');
+const assert = require('assert');
 const evbus = require('.');
 
-let bus = evbus();
-
-/**
- * single event type bind
- * 简单事件绑定
- */
-console.log('single event type test...');
-
-let res = [];
-bus.on('tom', d => res.push({data: d, type: 'tom'}))
-	.on('jack', d => res.push({data: d, type: 'jack'}))
-	.on('lucy', d => res.push({data: d, type: 'lucy'}))
+let bus, res
 
 
-bus.trigger('tom', 0);
-should(res[0]).be.a.Object();
-should(res[0]).have.property('data', 0)
-should(res[0]).have.property('type', 'tom');
-should.not.exist(res[1]);
+bus = evbus();
+res = [];
 
-bus.trigger('jack', 1);
-should(res[1]).be.a.Object();
-should(res[1]).have.property('data', 1)
-should(res[1]).have.property('type', 'jack');
-should.not.exist(res[2]);
+bus.on('tom', _ => res.push('tom'))
+	.on('jack', _ => res.push('jack'))
+	.on('lucy', _ => res.push('lucy'))
 
-bus.trigger('lucy', 2);
-should(res[2]).be.a.Object();
-should(res[2]).have.property('data', 2)
-should(res[2]).have.property('type', 'lucy');
-should.not.exist(res[3]);
+
+bus.trigger('tom');
+assert.equal(res.join('|'), 'tom');
+
+bus.trigger('jack');
+assert.equal(res.join('|'), 'tom|jack');
+
+bus.trigger('lucy');
+assert.equal(res.join('|'), 'tom|jack|lucy');
 
 
 bus.off('lucy');
-console.log(bus._evbus)
-bus.trigger('lucy', 3);
-should.not.exist(res[3]);
-
-bus.trigger('jack', 3);
-should(res[3]).be.a.Object().and.have.property('data', 3);
-
-console.log('single event type test passed!\n');
+bus.trigger('lucy');
+assert.equal(res.join('|'), 'tom|jack|lucy');
 
 
+bus.trigger('jack     tom   ');
+assert.equal(res.join('|'), 'tom|jack|lucy|jack|tom');
+
+bus.clear();
+bus.trigger('tom');
+assert.equal(res.join('|'), 'tom|jack|lucy|jack|tom');
+
+console.log('single event test passed!');
+
+
+
+bus = evbus();
+res = [];
+
+bus.on('tom', _ => res.push('tom'))
+	.on('tom.and', _ => res.push('and'))
+	.on('tom.and.lucy', _ => res.push('lucy'))
+	.on('tom.and.lucy.is', _ => res.push('is'))
+	.on('tom.and.lucy.is.best', _ => res.push('best'))
+	.on('tom.and.lucy.is.best.friends', _ => res.push('friends'))
+	.on('jack', _ => res.push('jack'))
+
+bus.trigger('tom.and.lucy.is.best.friends');
+assert.equal(res.join('|'), 'friends|best|is|lucy|and|tom');
+
+
+res = [];
+bus.off('tom.and.lucy.is');
+
+bus.trigger('tom.and.lucy.is.best');
+assert.equal(res.join('|'), '');
+
+bus.trigger('tom.and.lucy');
+assert.equal(res.join('|'), 'lucy|and|tom');
+
+
+res = [];
+assert.throws(_ => {
+	bus.on('steve.and.tony');
+	bus.trigger('steve.and.tony');
+}, err => {
+	if (err.message === 'The second argument of Event.on must be a function!') return true;
+});
+
+
+res = [];
+bus.on('steve.and.tony', d => res.push(d));
+bus.trigger('steve.and.tony', 1);
+assert.equal(res.join('|'), '1');
+
+bus.on('steve', d => res.push(d + '-steve'));
+bus.trigger('steve.and.tony', 2);
+assert.equal(res.join('|'), '1|2|2-steve');
+console.log('hierachical event test passed!');
+
+
+
+bus = evbus();
+
+assert.throws(_ => {
+	bus.trigger('', 123);
+}, err => {
+	if (err.message.indexOf('The type should be such as') > -1) return true;
+});
+
+
+res = [];
+bus.on('a.b a.b.c x.y.z', d => res.push(d + '+'));
+bus.on('a.b.c.d e.f x.y', d => res.push(d + '-'));
+bus.trigger('a.b.c.d x.y', 3);
+assert.equal(res.join('|'), '3-|3+|3+|3-');
+
+res = [];
+bus.off('a.b.c x.y.z');
+bus.trigger('a.b.c.d x.y', 4);
+assert.equal(res.join('|'), '4-');
+
+res = [];
+bus.trigger('a.b', 5);
+assert.equal(res.join('|'), '5+');
+console.log('space delimiter test passed!');
 
 
 
 
-/**
- * hierachical event type bind
- * 层级事件绑定
- */
-// console.log('hierachical event type bind');
+
+
+
+
+
+
+
+
+
+
+
