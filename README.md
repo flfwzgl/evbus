@@ -4,15 +4,19 @@
 Hierarchical event library written in javascript, no dependencies
 
 ### Features
-* Hierarchical events
-* multiple event-binding separated by at least one whitespace
-* compitable with IE8(ES3)
-* compitable with `CommonJS`, `AMD` and browser
+* Hierarchical events(event namespace)
+* Binding multiple events separated by at least one whitespace
+* Compitable with IE8(ES3)
+* Compitable with `CommonJS`, `AMD` and `browser`
 
 ### Installation
 
 ```bash
 npm i -S evbus
+```
+or
+```html
+<script src="js/evbus/index.js"></script>
 ```
 
 ### Usage
@@ -36,8 +40,11 @@ bus.trigger('world.asia.china.beijing', 1);
 '1-asia'
 '1-world'
 
-bus.off('world.asia.china');  // unbind world.asia.china and world.asia.china.beijing
+// unbind "world.asia.china" and "world.asia.china.beijing"
+bus.off('world.asia.china');
+
 bus.trigger('world.asia.china.beijing', 2);
+
 // so there is no output
 
 bus.trigger('world.asia', 2);

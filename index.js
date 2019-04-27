@@ -1,34 +1,36 @@
 /**
- * evbox
  * created by flfwzgl
+ * github.com/flfwzgl/evbus
  */
 
 
-;(function (factory) {
+;(function (global, factory) {
   if (typeof module === 'object' && module.exports) {
     module.exports = factory();
   } else if (typeof define === 'function' && define.amd) {
     define(factory);
   } else {
-    window.evbus = factory();
+    global.evbus = factory();
   }
-})(function () {
+})(typeof window === 'object' ? window : this, function () {
   var slice = [].slice;
   var toStr = ({}).toString;
 
   function add (e, str) {
     str = str || '';
-    return str.split('.').reduce(function (p, k) {
-      return p[k] || (p[k] = {});
-    }, e);
+    var arr = str.split('.'), k;
+    for (var i = 0, l = arr.length; i < l; i++) {
+      k = arr[i];
+      e = e[k] || (e[k] = {});
+    }
+    return e;
   }
 
   function get (e, str) {
     if (str === '') return e;
     var arr = str.split('.'), k;
     for (var i = 0, l = arr.length; i < l; i++) {
-      k = arr[i];
-      e = e[k];
+      k = arr[i], e = e[k];
       if (!e) return e;
     }
     return e;
@@ -46,11 +48,15 @@
   }
 
   function indexOf (list, e) {
-    if (!list || e === undefined) return;
+    if (!list || e === undefined) return -1;
     for (var i = 0, l = list.length; i < l; i++) {
       if (list[i] === e) return i;
     }
     return -1;
+  }
+
+  function trim (s) {
+    return String(s).replace(/^\s+|\s+$/g, '');
   }
 
   function rmfn (e, fn) {
@@ -130,7 +136,7 @@
     if (!rtype.test(type)) throw new Error(TYPE_ERR_MSG);
     if (typeof fn !== 'function') throw new TypeError('The second argument of Event.on must be a function!');
 
-    var types = type.trim().split(/\s+/);
+    var types = trim(type).split(/\s+/);
     var bus = this._evbus;
     each(types, function (type) {
       bind(bus, type, fn);
@@ -142,7 +148,7 @@
     if (typeof type !== 'string') throw new TypeError('The type must be a string!');
     if (!rtype.test(type)) throw new Error(TYPE_ERR_MSG);
 
-    var types = type.trim().split(/\s+/);
+    var types = trim(type).split(/\s+/);
     var bus = this._evbus;
 
     each(types, function (type) {
@@ -156,7 +162,7 @@
     if (!rtype.test(type)) throw new Error(TYPE_ERR_MSG);
 
     var args = slice.call(arguments, 1);
-    var types = type.trim().split(/\s+/);
+    var types = trim(type).split(/\s+/);
     var bus = this._evbus;
 
     each(types, function (type) {
@@ -167,6 +173,7 @@
 
   Event.prototype.clear = function () {
     this._evbus = {};
+    return this;
   }
 
   return Event;

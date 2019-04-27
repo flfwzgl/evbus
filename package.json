@@ -1,7 +1,7 @@
 {
   "name": "evbus",
-  "version": "1.0.0",
-  "description": "Event library written in javascript, no dependencies",
+  "version": "1.1.0",
+  "description": "Hierarchical javascript event library, no dependencies",
   "main": "index.js",
   "dependencies": {},
   "devDependencies": {
@@ -18,7 +18,9 @@
   },
   "keywords": [
     "Event library",
-    "Hierarchical event"
+    "Hierarchical events",
+    "javascript",
+    "event namespace"
   ],
   "author": "flfwzgl",
   "license": "MIT",

@@ -114,7 +114,13 @@ console.log('whitespace delimiter test passed!');
 
 
 
+bus = evbus();
+res = [];
 
+
+bus.on('output', (a, b, c, d) => res.push(a, b, c, d));
+bus.trigger('output', 1, 2, 3, 4);
+assert.equal(res.join('|'), '1|2|3|4');
 
 
 
